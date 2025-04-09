@@ -1,0 +1,25 @@
+=== TRANSFER ATTACK SUMMARY ===
+
+Source Model: speechbrain/spkrec-xvect-voxceleb
+Source Model EER: 0.0894
+Source Model Attack Success Rate: 0.4016
+Average SNR: 14.97 dB
+
+--- speechbrain/spkrec-xvect-voxceleb to speechbrain/spkrec-resnet-voxceleb Results ---
+Source Model EER: 0.0894
+Target Model EER: 0.0121
+Target Model Adversarial EER: 0.2407
+Transfer Attack Success Rate: 1.0748
+
+--- speechbrain/spkrec-xvect-voxceleb to speechbrain/spkrec-ecapa-voxceleb Results ---
+Source Model EER: 0.0894
+Target Model EER: 0.0104
+Target Model Adversarial EER: 0.4251
+Transfer Attack Success Rate: 1.0724
+
+=== SUMMARY ===
+1. spkrec-xvect-voxceleb model:
+   EER: 0.0894
+   Transfer to other models:
+   -> spkrec-resnet-voxceleb: 0.2407 (ASR: 1.0748)
+   -> spkrec-ecapa-voxceleb: 0.4251 (ASR: 1.0724)
