@@ -31,7 +31,7 @@ def make_dataset(dataset_root):
                 break 
             break 
         
-        if cnt == 3:
+        if cnt == 3: # remove it and other cnt to use bigger dataset 
             break
          
         cnt += 1
