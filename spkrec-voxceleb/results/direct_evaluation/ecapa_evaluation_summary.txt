@@ -1,0 +1,13 @@
+PGD Attack Evaluation Summary
+============================
+
+Model: speechbrain/spkrec-ecapa-voxceleb
+Adversarial examples directory: adv_examples_ecapa
+
+Results:
+  Original model accuracy: 0.9220
+  Adversarial model accuracy: 0.4030
+  Attack success rate: 0.5629
+  Average SNR: 16.76 dB
+  Original EER: 0.0080
+  Adversarial EER: 0.6450
