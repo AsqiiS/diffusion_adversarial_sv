@@ -1,0 +1,13 @@
+PGD Attack Evaluation Summary
+============================
+
+Model: speechbrain/spkrec-resnet-voxceleb
+Adversarial examples directory: adv_examples_resnet
+
+Results:
+  Original model accuracy: 0.9200
+  Adversarial model accuracy: 0.3400
+  Attack success rate: 0.6304
+  Average SNR: 11.75 dB
+  Original EER: 0.0105
+  Adversarial EER: 0.5800
