@@ -45,7 +45,10 @@ class AudioDataset(Dataset):
     def __init__(self, source_root, transcription_dict=None, source_transform=None, target_sample_rate=None, take_subset=None):
         self.transcription_dict = transcription_dict or {}
         self.source_paths, self.transripts = make_dataset(source_root, transcription_dict=transcription_dict)
-        self.source_paths = self.source_paths[:take_subset] # resize the dataset size 
+
+        if take_subset != None: 
+            self.source_paths = self.source_paths[:take_subset] # resize the dataset size 
+       
         self.source_root = source_root 
 
         self.source_transform = source_transform
