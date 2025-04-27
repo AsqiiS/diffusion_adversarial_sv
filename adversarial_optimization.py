@@ -12,10 +12,8 @@ import transformers
 import logging
 import matplotlib.pyplot as plt
 
-
-# from audioldm import AudioDiffusionModel  # e.g., placeholder
-# from speaker_verification import ECAPA_TDNN  # placeholder
-# from loss import CosineLoss, CLAPLoss        # hypothetical
+adv_path = 'adversarial_examples'
+vae_decoded_path = 'vae_decoded'
 
 def visualize_spec(audio):
     spectrogram = torchaudio.transforms.Spectrogram(n_fft=1024, hop_length=256)(audio)
@@ -415,7 +413,7 @@ class AdversarialAudioOpt:
                 gc.collect()
 
             with torch.no_grad():
-                latent = self.diffusion_step(latent, transcription_embeds, attention_mask_1, generated_prompt_embeds, t, True).detach()
+                latent = self.diffusion_step(latent, transcription_embeds, attention_mask_1, generated_prompt_embeds, t).detach()
 
                 all_uncond_embs.append(( 
                     transcription_embeds.detach().clone(), 
@@ -430,16 +428,16 @@ class AdversarialAudioOpt:
 
 
     def attacker(self, audio, prompt=None, transcription=None, source_embeddings=None, target_embeddings=None):
-        all_uncond_embs = self.null_optimization(inversion_latents)
-
-        tr_guidance = [all_uncond_embs[i][0].detach().repeat(2, 1, 1).to(torch.float32) for i in range(len(all_uncond_embs))]
-        amask_guidance = [all_uncond_embs[i][1].detach().repeat(2, 1) for i in range(len(all_uncond_embs))]
-        gen_guidance = [all_uncond_embs[i][2].detach().repeat(2, 1, 1).to(torch.float32) for i in range(len(all_uncond_embs))]
-        
         # lat[0], lat[1], lat[2], ...
         inversion_latents = self.ddim_inversion(audio, prompt, transcription)[::-1]
         # reverse
         latent = inversion_latents[self.start_step - 1].detach().to(torch.float32)
+
+        all_uncond_embs = self.null_optimization(inversion_latents, prompt, transcription)
+
+        tr_guidance = [all_uncond_embs[i][0].detach().repeat(2, 1, 1).to(torch.float32) for i in range(len(all_uncond_embs))]
+        amask_guidance = [all_uncond_embs[i][1].detach().repeat(2, 1) for i in range(len(all_uncond_embs))]
+        gen_guidance = [all_uncond_embs[i][2].detach().repeat(2, 1, 1).to(torch.float32) for i in range(len(all_uncond_embs))]
 
         init_latent = latent.detach().clone()
         latent.requires_grad_(True)
@@ -485,6 +483,10 @@ class AdversarialAudioOpt:
         # target_choice should be a path to target audio
         target_audio, _ = get_target_audio(self.target_choice, self.device)
 
+        target_audio = target_audio.to(self.diff_model.device)
+        target_latent = self.audio2latent(target_audio)
+        target_audio = self.latent2audio(target_latent)
+
         with torch.no_grad():
             target_embeddings = self.get_SV_embeddings(target_audio)
 
@@ -499,9 +501,14 @@ class AdversarialAudioOpt:
             if audio.shape[1] == 1:
                 audio = audio.squeeze(1)
 
+            source_latent = self.audio2latent(audio)
+            source_audio = self.latent2audio(source_latent)
+
+            torchaudio.save(os.path.join(vae_decoded_path, f'{audio_name}_vae.wav'), source_audio.to(torch.float32).cpu(), 16000)
+
             if self.is_obfuscation:
                 with torch.no_grad():
-                    source_embeddings = self.get_SV_embeddings(audio)
+                    source_embeddings = self.get_SV_embeddings(source_audio)
             else:
                 source_embeddings = None
 
@@ -510,6 +517,7 @@ class AdversarialAudioOpt:
 
             if latents is not None:
                 protected_audio = self.latent2audio(latents)[1:]
-                visualize_spec(protected_audio.to(torch.float32).cpu().detach())
+                # visualize_spec(protected_audio.to(torch.float32).cpu().detach())
                 # protected_audio = self.latent2audio(latents)
-                save_audio(protected_audio, self.protected_audio_dir, audio_name)
+                # save_audio(protected_audio, self.protected_audio_dir, audio_name)
+                torchaudio.save(os.path.join(adv_path, f'{audio_name}_adv.wav'), protected_audio.to(torch.float32).cpu(), 16000)
