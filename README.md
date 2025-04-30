@@ -36,6 +36,12 @@ Arguments:
 - `--model_name`: Model to evaluate on (`ecapa`, `xvect`, or `resnet`).
 - `--attack_type`: Either `impersonation` or `evasion`.
 
+## Future Work 
+
+- `null-text embedding evaluation`: Add code for assessing the effectiveness of null-text embedding optimization.
+- `ensemble adversarial attacks`: Implement ensemble-based attacks using multiple surrogate speaker verification models.
+- `latent diffusion models`: Test the attack pipeline on other latent diffusion-based audio generation models.
+- `flow-matching TTS models`: Adapt the method on text-to-speech models that use flow-matching architectures.
 
 
 Code adapted from: https://github.com/parham1998/Facial-Privacy-Protection, https://huggingface.co/docs/diffusers/main/api/pipelines/audioldm2
